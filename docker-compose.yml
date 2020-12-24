@@ -1,0 +1,24 @@
+version: "3"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbit
+  rabbit:
+    image: rabbitmq:management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+  worker:
+    build:
+      context: .
+    hostname: worker
+    command: celery -A mail_app.celery worker -l INFO
+    links:
+      - rabbit
+    depends_on:
+      - rabbit
